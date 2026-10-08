@@ -24,12 +24,12 @@ html.gk-solo .main{max-width:760px;margin:0 auto}
 </style>
 <script>
 /* if anything in the post view fails, never leave a blank page */
-window.addEventListener('error',function(e){var d=document.documentElement;if(!d.classList.contains('gk-solo'))return;var b=document.getElementById('soloBody');if(b&&b.querySelector('.solo-load'))b.innerHTML='<p style="padding:28px 8px;text-align:center;color:#cfd7e0">Something went wrong loading this transmission. <a style="color:#66ccff" href="">Try again</a> or <a style="color:#66ccff" href="./">open all transmissions</a>.</p>'});
+window.addEventListener('error',function(e){var d=document.documentElement;if(!d.classList.contains('gk-solo'))return;var b=document.getElementById('soloBody');if(b&&b.querySelector('.solo-load'))b.innerHTML='<p style="padding:28px 8px;text-align:center;color:#cfd7e0">Something went wrong loading this transmission. <a style="color:#66ccff" href="">Try again</a>.</p>'});
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Cinzel:wght@500;600&display=swap">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <a class="skip" href="#feed">Skip to transmissions</a>
@@ -90,7 +90,6 @@ window.addEventListener('error',function(e){var d=document.documentElement;if(!d
 
   <main class="main">
     <section id="solo" class="solo" aria-label="Transmission">
-      <a class="btn solo-home" id="soloHome" href="./">&larr; GREY KNIGHTS &middot; All transmissions</a>
       <div id="soloBody" class="solo-body"><div class="solo-load" role="status" aria-label="Loading transmission"></div></div>
     </section>
     <h2 class="sect"><span>Transmissions</span></h2>
@@ -120,6 +119,6 @@ window.addEventListener('error',function(e){var d=document.documentElement;if(!d
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <noscript><p style="padding:24px;color:#cfd7e0">GREY KNIGHTS needs JavaScript to read Post.txt.</p></noscript>
-<script src="script.js?v=7" defer></script>
+<script src="script.js?v=8" defer></script>
 </body>
 </html>

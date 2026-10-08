@@ -924,7 +924,9 @@ const startFx = () => {
     r: rnd(0.7, 2.1) * dpr, vy: rnd(0.12, 0.5) * dpr, vx: rnd(-0.12, 0.12) * dpr,
     ph: rnd(0, 6.28), sw: rnd(0.4, 1.4), blue: Math.random() < 0.28, a: rnd(0.35, 0.9)
   });
+  let rw = 0, rh = 0;
   function size() {
+    rw = innerWidth; rh = innerHeight;
     dpr = Math.min(devicePixelRatio || 1, 2);
     w = cv.width = Math.round(innerWidth * dpr); hgt = cv.height = Math.round(innerHeight * dpr);
     const n = Math.round(Math.min(46, Math.max(18, innerWidth * innerHeight / 30000)));
@@ -952,7 +954,7 @@ const startFx = () => {
     }
   }
   size();
-  addEventListener('resize', size);
+  addEventListener('resize', () => { if (innerWidth !== rw || Math.abs(innerHeight - rh) > 120) size(); });
   document.addEventListener('visibilitychange', () => { run = !document.hidden; if (run) requestAnimationFrame(frame); });
   requestAnimationFrame(frame);
 };
