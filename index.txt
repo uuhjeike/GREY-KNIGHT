@@ -1,4 +1,0 @@
-# One file name per line. Add new files here.
-@status On watch
-@bio Permanent records of the Grey Knight.
-posts-001.txt
