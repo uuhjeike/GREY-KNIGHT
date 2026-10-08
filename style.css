@@ -282,8 +282,8 @@ video.m{width:100%;height:auto;max-height:82vh;min-height:140px;background:#000;
 }
 
 /* ===== Dedicated post view (?post=ID) ===== */
-.solo{display:none}
-html.solo .solo{display:block}
+section.solo{display:none}
+html.solo section.solo{display:block}
 html.solo .side,html.solo .sect,html.solo #notice,html.solo #feed,html.solo #state{display:none!important}
 html.solo .shell{display:block;max-width:800px;padding-top:16px}
 html.solo .main{max-width:760px;margin:0 auto}
