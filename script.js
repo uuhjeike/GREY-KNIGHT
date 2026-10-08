@@ -233,6 +233,8 @@ const ICON_PLAY = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="
 const tick = () => new Promise(r => setTimeout(r, 0));
 const nf = n => n.toLocaleString();
 
+const SOLO = !!paramId();
+if (SOLO) document.documentElement.classList.add('solo');
 const feed = $('#feed'), top = $('#top'), tail = $('#tail'), stateEl = $('#state');
 const cons = $('#console'), qEl = $('#q'), chips = $('#chips');
 const noticeEl = $('#notice'), resultEl = $('#result');
@@ -435,8 +437,9 @@ function buildBody(post, full) {
 const EMB = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 7v10M8.5 10.5h7" stroke="currentColor" stroke-width="1.2"/></svg>';
 const ICON_LINK = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
-function renderPost(k) {
-  const post = getPost(k), id = IDS[k];
+function renderPost(k) { return buildPostEl(getPost(k), IDS[k]); }
+
+function buildPostEl(post, id) {
   const el = h('article', { class: 'post', tabindex: '-1', 'data-id': id });
   const emb = h('span', { class: 'pemb' }); emb.innerHTML = EMB;
   el.append(h('i', { class: 'scan', 'aria-hidden': 'true' }), h('i', { class: 'ribbon', 'aria-hidden': 'true' }), h('header', { class: 'ph' }, emb, h('span', { class: 'pname', text: 'GREY KNIGHTS' })));
@@ -737,24 +740,28 @@ function playYT(btn) {
     title: 'YouTube video player', referrerpolicy: 'strict-origin-when-cross-origin' });
   f._fb = btn; btn.replaceWith(f);
 }
+let soloData = null; // { id, post } while the dedicated post view is showing
 function expand(post) {
-  const k = idMap.get(post.dataset.id);
-  if (k === undefined) return;
+  let data = soloData && soloData.id === post.dataset.id ? soloData.post : null;
+  if (!data) { const k = idMap.get(post.dataset.id); if (k === undefined) return; data = getPost(k); }
   const old = post.querySelector('.pb');
-  if (old) old.replaceWith(buildBody(getPost(k), true));
+  if (old) old.replaceWith(buildBody(data, true));
   schedule();
 }
 
-feed.addEventListener('click', e => {
+const soloBody = $('#soloBody');
+const roots = [feed, soloBody];
+const onPostClick = e => {
   const t = e.target.closest('[data-act]');
-  if (!t || !feed.contains(t)) return;
+  if (!t || !e.currentTarget.contains(t)) return;
   const post = t.closest('.post'), act = t.dataset.act;
   if (act === 'copy') copyLink(post.dataset.id, t);
   else if (act === 'open') { e.preventDefault(); openPost(post.dataset.id, true); }
   else if (act === 'zoom') { e.preventDefault(); openViewer(post, t); }
   else if (act === 'yt') playYT(t);
   else if (act === 'more') expand(post);
-});
+};
+for (const r of roots) r.addEventListener('click', onPostClick);
 stateEl.addEventListener('click', e => { if (e.target.closest('[data-act="reload"]')) load(); });
 $('#noticeBtn').addEventListener('click', () => goHome(true));
 $('#home').addEventListener('click', e => { e.preventDefault(); goHome(true); });
@@ -765,22 +772,27 @@ function failCard(box, o, what) {
   if (o) f.append(h('a', { href: o, target: '_blank', rel: 'noopener noreferrer', text: 'Open source' }));
   box.replaceChildren(f);
 }
-feed.addEventListener('error', e => {
+const onMediaError = e => {
   const t = e.target;
   if (!(t instanceof HTMLElement)) return;
   if (t.matches('img.yt-thumb')) { t.remove(); return; }
   if (!t.matches('img.m, video.m, audio.m')) return;
   const box = t.closest('.cell, .cbody');
   if (box) failCard(box, t.dataset.o, t.localName === 'img' ? 'Image' : t.localName === 'video' ? 'Video' : 'Audio');
-}, true);
-feed.addEventListener('load', e => {
+};
+const onMediaLoad = e => {
   const t = e.target;
   if (t.localName === 'img' && t.classList.contains('m') && t.naturalWidth) t.classList.toggle('tall', t.naturalHeight / t.naturalWidth > 2.2);
-}, true);
-feed.addEventListener('loadedmetadata', e => {
+};
+const onMediaMeta = e => {
   const v = e.target;
   if (v.localName === 'video' && v.videoWidth) v.style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight;
-}, true);
+};
+for (const r of roots) {
+  r.addEventListener('error', onMediaError, true);
+  r.addEventListener('load', onMediaLoad, true);
+  r.addEventListener('loadedmetadata', onMediaMeta, true);
+}
 
 /* ================= IMAGE VIEWER (zoom, swipe, pinch, fullscreen) ================= */
 const V = { el: $('#viewer'), img: $('#vimg'), stage: $('#vstage'), count: $('#vcount'), list: [], i: 0, s: 1, x: 0, y: 0, open: false, pushed: false, from: null };
@@ -878,7 +890,7 @@ V.stage.addEventListener('wheel', e => { e.preventDefault(); vZoom(V.s * (e.delt
   V.stage.addEventListener('pointerup', end);
   V.stage.addEventListener('pointercancel', end);
 }
-{
+const startAvatar = () => {
   const av = $('#avatar'), img = $('#avatarImg');
   const srcs = CFG.photos.map(p => classify(p, 'photo')).filter(Boolean).map(i => i.u);
   let n = 0, cur = '';
@@ -887,7 +899,7 @@ V.stage.addEventListener('wheel', e => { e.preventDefault(); vZoom(V.s * (e.delt
   img.addEventListener('error', next);
   av.addEventListener('click', () => openList([{ src: cur, alt: 'GREY KNIGHTS' }], 0, av));
   next();
-}
+};
 
 $('#share').addEventListener('click', async () => {
   const u = new URL(location.href); u.search = ''; u.hash = '';
@@ -900,7 +912,7 @@ $('#share').addEventListener('click', async () => {
 
 
 /* ================= AMBIENT EMBERS (decorative canvas; off for reduced motion / hidden tab) ================= */
-(() => {
+const startFx = () => {
   const cv = $('#fx');
   if (!cv || !CFG.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ctx = cv.getContext('2d');
@@ -943,12 +955,12 @@ $('#share').addEventListener('click', async () => {
   addEventListener('resize', size);
   document.addEventListener('visibilitychange', () => { run = !document.hidden; if (run) requestAnimationFrame(frame); });
   requestAnimationFrame(frame);
-})();
+};
 
 /* ================= BOOT ================= */
 const bgEl = $('#bg');
 let bgRaf = 0;
-addEventListener('popstate', () => { if (V.open) { vClose(true); return; } if (ready) route(false); });
+addEventListener('popstate', () => { if (V.open) { vClose(true); return; } if (ready && !SOLO) route(false); });
 addEventListener('resize', schedule);
 addEventListener('scroll', () => {
   const y = scrollY;
@@ -964,25 +976,39 @@ qEl.addEventListener('focus', () => cons.classList.remove('away'));
 
 function setStatus(text, ok) { $('#statusText').textContent = text; $('#dot').className = 'dot' + (ok === true ? ' on' : ok === false ? ' off' : ''); }
 
+/* Fetches Post.txt (the first source may already be in flight from the <head> script). */
+async function fetchText() {
+  let err = null;
+  for (let i = 0; i < CFG.src.length; i++) {
+    try {
+      let text;
+      if (i === 0 && window.__gkText) {
+        const pre = window.__gkText; window.__gkText = null;
+        text = await pre;
+        if (text === null) throw new Error('network error');
+      } else {
+        const res = await fetch(CFG.src[i], { cache: 'no-cache' });
+        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        text = await res.text();
+      }
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      if (text.indexOf('\r') >= 0) text = text.replace(/\r\n?/g, '\n');
+      return { text };
+    } catch (e) { err = e; }
+  }
+  return { err };
+}
+
 async function load() {
   ready = false; resetWindow(0); resultEl.hidden = true;
   setStatus('Connecting'); setState('Loading archive…', 'busy');
-  let text = null, err = null;
-  for (const u of CFG.src) {
-    try {
-      const res = await fetch(u, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-      text = await res.text();
-      break;
-    } catch (e) { err = e; }
-  }
+  const got = await fetchText(), err = got.err;
+  let text = got.text === undefined ? null : got.text;
   if (text === null) {
     setStatus('Archive offline', false);
     setState('Could not load Post.txt (' + (err && err.message ? err.message : 'network error') + '). Check that the file exists and that you are online.', 'error', true);
     return;
   }
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  if (text.indexOf('\r') >= 0) text = text.replace(/\r\n?/g, '\n');
   await buildIndex(text);
   $('#nPosts').textContent = nf(N);
   $('#nMedia').textContent = nf(totalMedia);
@@ -992,5 +1018,60 @@ async function load() {
   syncControls();
   route(false);
 }
-load();
+
+/* ================= DEDICATED POST VIEW (?post=ID) ================= */
+/* Finds ONE post without indexing the archive: find block boundaries, then check each block's ID
+   (explicit "ID:" line, or the content-derived ID). Stops at the first match; nothing else is parsed or rendered. */
+const ID_LINE = /(?:^|\n)ID[ \t]*:[ \t]?([^\n]*)/;
+function findPost(text, id) {
+  let sc = scan(text, true);
+  if (sc.unclosed) sc = scan(text, false);
+  const derivable = id.startsWith(CFG.idPrefix) && /^[0-9a-z]{11}$/.test(id.slice(CFG.idPrefix.length));
+  for (let i = 0; i < sc.b.length; i += 2) {
+    const raw = text.slice(sc.b[i], sc.b[i + 1]);
+    const m = ID_LINE.exec(raw);
+    const explicit = m ? sanitizeId(m[1].trim()) : '';
+    if (explicit) { if (explicit !== id) continue; }
+    else if (!derivable || deriveId(raw) !== id) continue;
+    if (raw.trim() === '') continue;
+    const post = safeParse(raw);
+    if ((post.id || deriveId(raw)) === id) return post;
+  }
+  return null;
+}
+
+function soloMsg(msg, retry) {
+  const box = h('div', { class: 'solo-msg' }, h('p', { text: msg }));
+  if (retry) box.append(h('button', { class: 'btn', type: 'button', onclick: 'location.reload()', text: 'Try again' }));
+  soloBody.replaceChildren(box);
+}
+
+function showSolo(id, post) {
+  soloData = { id, post };
+  let el;
+  try { el = buildPostEl(post, id); }
+  catch (e) { el = h('article', { class: 'post bad', 'data-id': id }, h('p', { class: 'warn', text: 'This entry could not be displayed.' })); }
+  io.observe(el);
+  soloBody.replaceChildren(el);
+  if (post.title) document.title = post.title + ' · GREY KNIGHTS';
+  // the post is on screen: only now start the decorative extras
+  (window.requestIdleCallback || setTimeout)(startFx);
+}
+
+async function loadSolo() {
+  const id = paramId();
+  const got = await fetchText();
+  if (got.text === undefined) { soloMsg('Could not load this transmission (' + (got.err && got.err.message ? got.err.message : 'network error') + ').', true); return; }
+  let post = findPost(got.text, id);
+  if (!post) { // rare: IDs that only exist after de-duplication ("-2" suffixes), etc.
+    await buildIndex(got.text);
+    const k = idMap.get(id);
+    if (k !== undefined) post = getPost(k);
+  }
+  if (!post) { soloMsg('That transmission could not be found.'); return; }
+  showSolo(id, post);
+}
+
+if (SOLO) loadSolo();
+else { startAvatar(); startFx(); load(); }
 })();
