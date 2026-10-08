@@ -11,13 +11,25 @@
 /* Permanent-link fast path: runs before anything else is parsed or painted.
    If the URL has ?post=ID, switch to the dedicated post view and start fetching Post.txt immediately. */
 (function(){var d=document.documentElement,id=new URLSearchParams(location.search).get('post')||(/[#&]post=([^&]+)/.exec(location.hash)||[])[1];
-if(id&&id.trim()){d.classList.add('solo');
+if(id&&id.trim()){d.classList.add('gk-solo');
 try{window.__gkText=fetch('Post.txt',{cache:'no-cache'}).then(function(r){return r.ok?r.text():null}).catch(function(){return null})}catch(e){}}})();
+</script>
+<style>
+/* critical rules for the dedicated post view: self-contained so a cached style.css can never blank the page */
+html{background:#04060b}
+html.gk-solo section.solo{display:block}
+html.gk-solo .side,html.gk-solo .sect,html.gk-solo #notice,html.gk-solo #feed,html.gk-solo #state{display:none!important}
+html.gk-solo .shell{display:block;max-width:800px;padding-top:16px}
+html.gk-solo .main{max-width:760px;margin:0 auto}
+</style>
+<script>
+/* if anything in the post view fails, never leave a blank page */
+window.addEventListener('error',function(e){var d=document.documentElement;if(!d.classList.contains('gk-solo'))return;var b=document.getElementById('soloBody');if(b&&b.querySelector('.solo-load'))b.innerHTML='<p style="padding:28px 8px;text-align:center;color:#cfd7e0">Something went wrong loading this transmission. <a style="color:#66ccff" href="">Try again</a> or <a style="color:#66ccff" href="./">open all transmissions</a>.</p>'});
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Cinzel:wght@500;600&display=swap">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 <a class="skip" href="#feed">Skip to transmissions</a>
@@ -108,6 +120,6 @@ try{window.__gkText=fetch('Post.txt',{cache:'no-cache'}).then(function(r){return
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <noscript><p style="padding:24px;color:#cfd7e0">GREY KNIGHTS needs JavaScript to read Post.txt.</p></noscript>
-<script src="script.js?v=6" defer></script>
+<script src="script.js?v=7" defer></script>
 </body>
 </html>

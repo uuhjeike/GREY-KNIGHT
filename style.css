@@ -283,10 +283,10 @@ video.m{width:100%;height:auto;max-height:82vh;min-height:140px;background:#000;
 
 /* ===== Dedicated post view (?post=ID) ===== */
 section.solo{display:none}
-html.solo section.solo{display:block}
-html.solo .side,html.solo .sect,html.solo #notice,html.solo #feed,html.solo #state{display:none!important}
-html.solo .shell{display:block;max-width:800px;padding-top:16px}
-html.solo .main{max-width:760px;margin:0 auto}
+html.gk-solo section.solo{display:block}
+html.gk-solo .side,html.gk-solo .sect,html.gk-solo #notice,html.gk-solo #feed,html.gk-solo #state{display:none!important}
+html.gk-solo .shell{display:block;max-width:800px;padding-top:16px}
+html.gk-solo .main{max-width:760px;margin:0 auto}
 .solo-home{margin:0 0 14px;text-decoration:none}
 .solo-body .post{margin-bottom:0}
 .solo-load{width:26px;height:26px;margin:56px auto;border:2px solid var(--line2);border-top-color:var(--silver);border-radius:50%;animation:soloSpin .8s linear infinite}

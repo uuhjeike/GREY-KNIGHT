@@ -234,7 +234,7 @@ const tick = () => new Promise(r => setTimeout(r, 0));
 const nf = n => n.toLocaleString();
 
 const SOLO = !!paramId();
-if (SOLO) document.documentElement.classList.add('solo');
+if (SOLO) document.documentElement.classList.add('gk-solo');
 const feed = $('#feed'), top = $('#top'), tail = $('#tail'), stateEl = $('#state');
 const cons = $('#console'), qEl = $('#q'), chips = $('#chips');
 const noticeEl = $('#notice'), resultEl = $('#result');
