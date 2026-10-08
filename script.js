@@ -231,7 +231,7 @@ const tick = () => new Promise(r => setTimeout(r, 0));
 const nf = n => n.toLocaleString();
 
 const feed = $('#feed'), top = $('#top'), tail = $('#tail'), stateEl = $('#state');
-const cons = $('#console'), qEl = $('#q'), sortEl = $('#sort'), chips = $('#chips');
+const cons = $('#console'), qEl = $('#q'), chips = $('#chips');
 const noticeEl = $('#notice'), resultEl = $('#result');
 const mqDesk = matchMedia('(min-width: 900px)');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -257,8 +257,6 @@ async function buildIndex(text) {
   const nb = sc.b.length / 2;
   MASK = new Uint8Array(nb);
   const seen = new Map();
-  const dir = /^[ \t]*#?[ \t]*ORDER[ \t]*:[ \t]*(top|bottom)/im.exec(text.slice(0, sc.pre));
-  newestAtBottom = dir ? dir[1].toLowerCase() === 'bottom' : false; // default: newest post = first block in the file
 
   let t0 = performance.now();
   for (let i = 0; i < nb; i++) {
@@ -419,24 +417,22 @@ function buildBody(post, full) {
   return body;
 }
 
+const EMB = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 7v10M8.5 10.5h7" stroke="currentColor" stroke-width="1.2"/></svg>';
+const ICON_LINK = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
 function renderPost(k) {
   const post = getPost(k), id = IDS[k];
   const el = h('article', { class: 'post', tabindex: '-1', 'data-id': id });
-  const head = h('header', { class: 'ph' }, h('a', { class: 'pid', href: '?post=' + encodeURIComponent(id), 'data-act': 'open', title: 'Permanent link', text: id }));
-  const ds = fmtDate(post.date);
-  if (ds) head.append(h('time', { class: 'pdate', datetime: post.date, text: ds }));
-  el.append(head);
+  const emb = h('span', { class: 'pemb' }); emb.innerHTML = EMB;
+  el.append(h('i', { class: 'ribbon', 'aria-hidden': 'true' }), h('header', { class: 'ph' }, emb, h('span', { class: 'pname', text: 'GREY KNIGHT' })));
   if (post.title) el.append(h('h3', { class: 'pt', text: post.title }));
   el.append(buildBody(post, false));
-  const foot = h('footer', { class: 'pf' });
-  const tags = h('div', { class: 'tags' });
-  for (const [bit, key, label] of TAGS) {
-    if (!(post.mask & bit)) continue;
-    const n = post.media.filter(i => i.k === key).length;
-    tags.append(h('span', { class: 'tag', text: n > 1 ? label + ' ×' + n : label }));
-  }
-  foot.append(tags, h('button', { class: 'btn', type: 'button', 'data-act': 'copy', text: 'Copy link' }));
-  el.append(foot);
+  const meta = h('div', { class: 'pmeta' }, h('a', { class: 'pid', href: '?post=' + encodeURIComponent(id), 'data-act': 'open', title: 'Permanent link', text: id }));
+  const ds = fmtDate(post.date);
+  if (ds) meta.append(h('time', { class: 'pdate', datetime: post.date, text: ds }));
+  const btn = h('button', { class: 'copy', type: 'button', 'data-act': 'copy' });
+  btn.innerHTML = ICON_LINK + '<span>Copy link</span>';
+  el.append(h('footer', { class: 'pf' }, meta, btn));
   return el;
 }
 
@@ -456,7 +452,7 @@ const FBIT = { all: 0, text: 1, photo: 2, video: 4, audio: 8, files: 16, youtube
 const state = { filter: 'all', q: '', terms: [], newestFirst: true };
 let view = null, viewDone = true, viewGen = 0;       // view === null means "all posts" (no array needed)
 let first = 0, last = 0, topH = 0, heights = [], raf = 0, lastY = 0;
-const rev = () => state.newestFirst === newestAtBottom;
+const rev = () => false; // file order: the FIRST block in Post.txt is the TOP of the feed
 const viewLen = () => view ? view.length : N;
 const recAt = p => view ? view[p] : (rev() ? N - 1 - p : p);
 
@@ -621,7 +617,6 @@ function applyView() {
 function syncControls() {
   qEl.value = state.q;
   for (const c of chips.children) c.setAttribute('aria-pressed', String(c.dataset.f === state.filter));
-  sortEl.textContent = state.newestFirst ? 'Newest first' : 'Oldest first';
 }
 function clearFilters() {
   state.filter = 'all'; state.q = ''; state.terms = [];
@@ -634,7 +629,6 @@ chips.addEventListener('click', e => {
   if (!c || state.filter === c.dataset.f) return;
   state.filter = c.dataset.f; syncControls(); applyView();
 });
-sortEl.addEventListener('click', () => { state.newestFirst = !state.newestFirst; syncControls(); applyView(); });
 let qTimer = 0;
 const runSearch = () => {
   clearTimeout(qTimer);
@@ -703,18 +697,23 @@ function toast(msg) {
   t.textContent = msg; t.classList.add('on');
   clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 1800);
 }
-async function copyLink(id, btn) {
-  const url = permalink(id);
-  let ok = false;
-  try { await navigator.clipboard.writeText(url); ok = true; }
+async function copyText(url) {
+  try { await navigator.clipboard.writeText(url); return true; }
   catch (e) {
     try {
       const ta = h('textarea', { readonly: true, style: 'position:fixed;opacity:0;top:0' });
-      ta.value = url; document.body.append(ta); ta.select(); ok = document.execCommand('copy'); ta.remove();
-    } catch (e2) { ok = false; }
+      ta.value = url; document.body.append(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove(); return ok;
+    } catch (e2) { return false; }
   }
-  if (ok) { toast('Link copied'); const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = o; }, 1500); }
-  else window.prompt('Copy this link', url);
+}
+async function copyLink(id, btn) {
+  const url = permalink(id);
+  if (await copyText(url)) {
+    toast('Link copied');
+    const lab = btn.querySelector('span') || btn, o = lab.textContent;
+    lab.textContent = 'Copied'; setTimeout(() => { lab.textContent = o; }, 1500);
+  } else window.prompt('Copy this link', url);
 }
 function playYT(btn) {
   const box = btn.closest('.yt'), t = +box.dataset.t || 0;
@@ -874,6 +873,15 @@ V.stage.addEventListener('wheel', e => { e.preventDefault(); vZoom(V.s * (e.delt
     av.addEventListener('click', () => openList([{ src: it.u, alt: 'GREY KNIGHT' }], 0, av));
   }
 }
+
+$('#share').addEventListener('click', async () => {
+  const u = new URL(location.href); u.search = ''; u.hash = '';
+  if (navigator.share) {
+    try { await navigator.share({ title: 'GREY KNIGHT', url: u.href }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  if (await copyText(u.href)) toast('Profile link copied'); else window.prompt('Copy this link', u.href);
+});
 
 /* ================= BOOT ================= */
 addEventListener('popstate', () => { if (V.open) { vClose(true); return; } if (ready) route(false); });

@@ -180,3 +180,47 @@ video.m{width:100%;height:auto;max-height:82vh;min-height:140px;background:#000;
   *{animation:none!important;transition:none!important}
   .post.flash{border-color:var(--cyan);border-left-color:var(--cyan)}
 }
+
+/* ================= Theme v2: the original Grey Knights profile feel ================= */
+:root{--serif:"Cinzel","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+body{font-family:"Barlow Semi Condensed","Arial Narrow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:18px;line-height:1.55;
+  background:radial-gradient(900px 520px at 50% -100px,#151b24 0,transparent 70%),#0a0c10}
+.plate{background:none;border:0;padding:30px 8px 10px;margin:0 0 4px;gap:16px}
+.plate>*{position:relative;z-index:1}
+.plate::before,.plate::after{content:"";position:absolute;z-index:0;pointer-events:none;width:auto;height:auto;
+  border:1px solid rgba(170,185,200,.16);border-bottom:0;border-radius:50% 50% 0 0 / 200px 200px 0 0}
+.plate::before{inset:0 2% 0 2%}
+.plate::after{inset:36px 11% 0 11%}
+.avatar{position:relative;width:min(76vw,290px);aspect-ratio:1;display:grid;place-items:center;padding:0;border:11px solid transparent;border-radius:50%;
+  background:linear-gradient(#05070a,#05070a) padding-box,linear-gradient(145deg,#dbe1e8,#58626e 46%,#aab4c0) border-box;
+  box-shadow:0 0 0 1px #4a4230,0 8px 24px rgba(0,0,0,.5)}
+.avatar img{max-width:72%;max-height:72%;width:auto;height:auto;object-fit:contain;background:none}
+.avatar::after{content:"";position:absolute;right:-9%;bottom:-3%;width:23%;aspect-ratio:1;border-radius:50%;border:2px solid #3a0b10;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 5l6 2.3v5c0 3.6-2.6 6-6 7.2-3.4-1.2-6-3.6-6-7.2v-5z' fill='none' stroke='%23e8c9c9' stroke-width='1.2'/%3E%3Cpath d='M12 8.5v7M9.5 11h5' stroke='%23e8c9c9' stroke-width='1.2'/%3E%3C/svg%3E") center/70% no-repeat,radial-gradient(circle at 35% 30%,#c4303b,#7a121b 72%)}
+.name{font-size:clamp(30px,9.4vw,46px);letter-spacing:.12em;margin-bottom:10px}
+.rank,.order{font-size:15px;letter-spacing:.34em}
+.stats{width:min(100%,380px);gap:12px}
+.stats div{padding:10px 6px 8px}
+.stats dt{font-size:13px;letter-spacing:.3em}
+.stats dd{font-size:34px;color:#e9ddb3}
+.share{min-width:230px;min-height:48px;letter-spacing:.24em;font-family:var(--serif)}
+.sect{display:flex;align-items:center;gap:14px;margin:20px 0 12px;font:500 15px var(--serif);letter-spacing:.38em;text-transform:uppercase;color:var(--silver)}
+.sect::before,.sect::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line2))}
+.sect::after{transform:scaleX(-1)}
+
+.post{padding:18px 18px 10px;border:1px solid #2a313b;border-radius:4px;background:linear-gradient(180deg,#1b2027,#14181e)}
+.post::before{top:-1px;left:-1px;right:auto;width:30px;height:30px;opacity:1;background:none;border:1px solid var(--steel);border-right:0;border-bottom:0}
+.post::after{content:"";position:absolute;right:-1px;bottom:-1px;width:30px;height:30px;border:1px solid var(--steel);border-left:0;border-top:0;pointer-events:none}
+.ribbon{position:absolute;top:-1px;right:18px;width:42px;height:62px;background:linear-gradient(180deg,#e6dbb0,#c5b57a);clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%)}
+.ribbon::before{content:"";position:absolute;left:50%;top:10px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d6404b,#8c1621 70%)}
+.ph{margin:0 0 14px;padding-right:58px;gap:12px}
+.ph::before{content:none}
+.pemb{flex:none;display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--steel);border-radius:50%;color:var(--silver)}
+.pname{font:600 18px var(--serif);letter-spacing:.22em;color:var(--silver);white-space:nowrap}
+.pb{font-size:19px;line-height:1.6}
+.pf{border-top:1px solid #2a313b;margin-top:14px;padding-top:8px}
+.pmeta{flex:1;min-width:0;display:flex;flex-direction:column;gap:0}
+.pid{flex:none;font-size:12px}
+.copy{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 6px;border:0;background:none;color:var(--mist);cursor:pointer;
+  font:600 14px var(--serif);letter-spacing:.2em;text-transform:uppercase}
+.copy:hover{color:var(--cyan)}

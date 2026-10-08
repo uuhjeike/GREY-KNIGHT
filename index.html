@@ -7,7 +7,10 @@
 <meta name="description" content="GREY KNIGHT: a continuously expanding digital archive.">
 <meta name="theme-color" content="#06080b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2306080b'/%3E%3Cpath d='M32 6l20 8v16c0 14-9 24-20 28C21 54 12 44 12 30V14z' fill='none' stroke='%23cfd7e0' stroke-width='3'/%3E%3Cpath d='M32 18v26M24 26h16' stroke='%2362d4e8' stroke-width='3'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Cinzel:wght@500;600&display=swap">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <a class="skip" href="#feed">Skip to posts</a>
@@ -29,12 +32,12 @@
         <div><dt>Entries</dt><dd id="nPosts">–</dd></div>
         <div><dt>Media</dt><dd id="nMedia">–</dd></div>
       </dl>
+      <button id="share" class="btn share" type="button">Share profile</button>
     </header>
 
     <section class="console" id="console" aria-label="Search and filters">
       <div class="row">
         <input id="q" type="search" placeholder="Search ID, title, text, date, type" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search posts">
-        <button id="sort" class="btn" type="button" aria-label="Change sort order">Newest first</button>
       </div>
       <div class="chips" id="chips" role="group" aria-label="Filter by type">
         <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
@@ -52,6 +55,7 @@
   </aside>
 
   <main class="main">
+    <h2 class="sect"><span>Posts</span></h2>
     <div id="notice" class="notice" hidden role="status">
       <span id="noticeText"></span>
       <button type="button" class="btn" id="noticeBtn">Show latest</button>
@@ -78,6 +82,6 @@
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <noscript><p style="padding:24px;color:#cfd7e0">GREY KNIGHT needs JavaScript to read Post.txt.</p></noscript>
-<script src="script.js" defer></script>
+<script src="script.js?v=3" defer></script>
 </body>
 </html>
