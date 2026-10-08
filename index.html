@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GREY KNIGHT</title><meta name="description" content="The living dossier of a Grey Knight."><meta name="theme-color" content="#06080b"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<a class="skip" href="#feed">Skip to posts</a>
+<div class="wrap"><div class="rail">
+<header id="profile" class="spine">
+<figure class="portrait"><img id="pf" alt="Grey Knight in silver and black power armour, holding a glowing blue sword before a gothic cathedral"></figure>
+<div class="id"><svg class="sig" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 6v12M8 10h8" stroke="currentColor" stroke-width="1.4"/></svg>
+<h1>GREY KNIGHT</h1><p class="status"><i></i><span id="status">On watch</span></p><p id="bio">Permanent records of the Grey Knight.</p>
+<dl class="stats"><div><dt>Posts</dt><dd id="nPosts">-</dd></div><div><dt>Media</dt><dd id="nMedia">-</dd></div></dl></div>
+</header>
+<nav id="nav" aria-label="Profile navigation">
+<div class="tabs"><button data-nav="profile">Profile</button><button data-nav="posts">Posts</button><button data-nav="media">Media</button><button data-nav="search">Search</button></div>
+<div class="srch" id="srch"><label class="sr" for="q">Search posts</label><input id="q" type="search" placeholder="Search ID, title, text, date, media type" autocomplete="off"></div>
+<div class="chips" role="group" aria-label="Filter posts"><button data-f="all" aria-pressed="true">All</button><button data-f="text">Text</button><button data-f="photo">Photo</button><button data-f="video">Video</button><button data-f="audio">Audio</button><button data-f="file">Files</button><button data-f="youtube">YouTube</button><button data-f="shorts">Shorts</button><button data-f="link">Links</button></div>
+</nav></div>
+<main><p id="state" role="status">Reading the archive…</p><section id="feed" aria-label="Posts" tabindex="-1"></section><div id="sent"></div></main></div>
+<div id="lb" hidden role="dialog" aria-modal="true" aria-label="Media viewer"><div class="bar"><button id="lbp">Previous</button><button id="lbn">Next</button><button id="lbz">Zoom</button><button id="lbf">Fullscreen</button><span id="lbc"></span><button id="lbx">Close</button></div><div class="stage"><img alt="Enlarged image"></div></div>
+<div id="toast" role="status" aria-live="polite"></div><script src="script.js"></script></body></html>

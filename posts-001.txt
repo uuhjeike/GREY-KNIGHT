@@ -1,0 +1,27 @@
+-
+ID: grey-knight-20261008-000001
+DATE: 2026-10-08
+TYPE: text
+TITLE: First Record
+CONTENT:
+The first permanent record of the Grey Knight.
+
+Every post has an ID that never changes. Reorder, edit or extend this file freely.
+-
+ID: grey-knight-20261008-000002
+DATE: 2026-10-08
+TYPE: image
+TITLE: Armour
+MEDIA:
+https://github.com/uuhjeike/GREY-KNIGHT/blob/main/file_00000000476081f68d9ae1965a7f37e6.png | Silver plate, black cloth, cold blue light.
+-
+ID: grey-knight-20261008-000003
+DATE: 2026-10-08
+TYPE: mixed
+TITLE: Archive source
+CONTENT:
+Mixed posts hold text plus any number of media, files and links.
+MEDIA:
+https://github.com/uuhjeike/GREY-KNIGHT
+SOURCE: https://github.com/uuhjeike/GREY-KNIGHT
+-
