@@ -258,7 +258,7 @@ async function buildIndex(text) {
   MASK = new Uint8Array(nb);
   const seen = new Map();
   const dir = /^[ \t]*#?[ \t]*ORDER[ \t]*:[ \t]*(top|bottom)/im.exec(text.slice(0, sc.pre));
-  newestAtBottom = dir ? dir[1].toLowerCase() === 'bottom' : true;
+  newestAtBottom = dir ? dir[1].toLowerCase() === 'bottom' : false; // default: newest post = first block in the file
 
   let t0 = performance.now();
   for (let i = 0; i < nb; i++) {
