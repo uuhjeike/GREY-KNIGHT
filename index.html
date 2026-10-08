@@ -3,33 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>GREY KNIGHT</title>
-<meta name="description" content="GREY KNIGHT: a continuously expanding digital archive.">
-<meta name="theme-color" content="#06080b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2306080b'/%3E%3Cpath d='M32 6l20 8v16c0 14-9 24-20 28C21 54 12 44 12 30V14z' fill='none' stroke='%23cfd7e0' stroke-width='3'/%3E%3Cpath d='M32 18v26M24 26h16' stroke='%2362d4e8' stroke-width='3'/%3E%3C/svg%3E">
+<title>GREY KNIGHTS</title>
+<meta name="description" content="GREY KNIGHTS: Ordo Malleus, Daemon Hunters. A continuously expanding digital archive.">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2304060b'/%3E%3Cpath d='M32 6l20 8v16c0 14-9 24-20 28C21 54 12 44 12 30V14z' fill='none' stroke='%23cfd7e0' stroke-width='3'/%3E%3Cpath d='M32 18v26M24 26h16' stroke='%2366ccff' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Cinzel:wght@500;600&display=swap">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
-<a class="skip" href="#feed">Skip to posts</a>
+<a class="skip" href="#feed">Skip to transmissions</a>
+
+<!-- atmosphere: cathedral skyline, psychic storm, drifting embers (decorative only) -->
+<div class="bg" id="bg" aria-hidden="true">
+  <div class="sky"></div>
+  <div class="bolt"></div>
+  <div class="far"></div>
+  <div class="candle"></div>
+  <div class="near"></div>
+  <div class="vig"></div>
+</div>
+<canvas id="fx" class="fx" aria-hidden="true"></canvas>
 
 <div class="shell">
   <aside class="side">
     <header class="plate" id="profile">
       <button class="avatar" id="avatar" type="button" aria-label="View profile photo" hidden>
-        <img id="avatarImg" alt="GREY KNIGHT profile photo" decoding="async">
+        <span class="aura"></span>
+        <span class="runes"></span>
+        <span class="ring"><img id="avatarImg" alt="GREY KNIGHTS profile photo" decoding="async"></span>
+        <i class="rv t"></i><i class="rv l"></i><i class="rv r"></i><i class="rv b"></i>
+        <span class="badge"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M12 5l6 2.3v5c0 3.6-2.6 6-6 7.2-3.4-1.2-6-3.6-6-7.2v-5z" fill="none" stroke="#f1d6d6" stroke-width="1.2"/><path d="M12 8.5v7M9.5 11h5" stroke="#f1d6d6" stroke-width="1.2"/></svg></span>
       </button>
       <div class="ident">
-        <h1 class="name"><a href="./" id="home">GREY KNIGHT</a></h1>
+        <h1 class="name"><a href="./" id="home">GREY KNIGHTS</a></h1>
         <p class="rank">Ordo Malleus</p>
         <p class="order">Daemon Hunters</p>
         <p class="status"><i class="dot" id="dot"></i><span id="statusText">Connecting</span></p>
       </div>
-      <div class="seal" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 7v10M8.5 10.5h7" stroke="currentColor" stroke-width="1.2"/></svg></div>
+      <div class="seal" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 7v10M8.5 10.5h7" stroke="currentColor" stroke-width="1.2"/></svg></div>
       <dl class="stats">
-        <div><dt>Entries</dt><dd id="nPosts">–</dd></div>
+        <div><dt>Transmissions</dt><dd id="nPosts">–</dd></div>
         <div><dt>Media</dt><dd id="nMedia">–</dd></div>
       </dl>
       <button id="share" class="btn share" type="button">Share profile</button>
@@ -37,7 +52,7 @@
 
     <section class="console" id="console" aria-label="Search and filters">
       <div class="row">
-        <input id="q" type="search" placeholder="Search ID, title, text, date, type" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search posts">
+        <input id="q" type="search" placeholder="Search transmissions" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search transmissions">
       </div>
       <div class="chips" id="chips" role="group" aria-label="Filter by type">
         <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
@@ -55,7 +70,7 @@
   </aside>
 
   <main class="main">
-    <h2 class="sect"><span>Posts</span></h2>
+    <h2 class="sect"><span>Transmissions</span></h2>
     <div id="notice" class="notice" hidden role="status">
       <span id="noticeText"></span>
       <button type="button" class="btn" id="noticeBtn">Show latest</button>
@@ -81,7 +96,7 @@
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<noscript><p style="padding:24px;color:#cfd7e0">GREY KNIGHT needs JavaScript to read Post.txt.</p></noscript>
-<script src="script.js?v=3" defer></script>
+<noscript><p style="padding:24px;color:#cfd7e0">GREY KNIGHTS needs JavaScript to read Post.txt.</p></noscript>
+<script src="script.js?v=4" defer></script>
 </body>
 </html>

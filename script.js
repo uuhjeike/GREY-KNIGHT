@@ -1,10 +1,13 @@
-/* GREY KNIGHT — static, Post.txt-driven archive. Vanilla JS, no dependencies. */
+/* GREY KNIGHTS — static, Post.txt-driven archive. Vanilla JS, no dependencies. */
 (() => {
 'use strict';
 
 /* ================= CONFIG (the only place you may ever need to touch) ================= */
 const CFG = {
-  photo: 'https://github.com/uuhjeike/GREY-KNIGHT/blob/main/file_00000000476081f68d9ae1965a7f37e6.png',
+  // Profile photo (your GitHub upload; the blob link is converted to the raw file automatically).
+  photos: ['https://github.com/uuhjeike/GREY-KNIGHT/blob/main/file_00000000476081f68d9ae1965a7f37e6.png'],
+  sources: true,    // show the numbered "Source" links under photo/video groups
+  fx: true,         // ambient embers animation (auto-off for reduced motion)
   // Tried in order: the file next to index.html first, then the raw GitHub copy.
   src: ['Post.txt', 'https://raw.githubusercontent.com/uuhjeike/GREY-KNIGHT/main/Post.txt'],
   idPrefix: 'grey-knight-',
@@ -394,6 +397,16 @@ function mediaEl(it) {
   }
 }
 
+function srcRow(items) {
+  const list = items.filter(i => i.o);
+  if (!CFG.sources || !list.length) return null;
+  const link = (it, text, cls, label) => h('a', { class: cls, href: it.o, target: '_blank', rel: 'noopener noreferrer', 'aria-label': label, text });
+  if (list.length === 1) return h('div', { class: 'src' }, link(list[0], 'Source', 'src-one', 'Open source'));
+  const row = h('div', { class: 'src' }, h('span', { class: 'src-l', text: 'Sources' }));
+  list.forEach((it, i) => row.append(link(it, String(i + 1), 'src-n', 'Open source ' + (i + 1))));
+  return row;
+}
+
 function renderMedia(items) {
   const vis = [], wide = [];
   for (const it of items) (it.k === 'photo' || it.k === 'video' ? vis : wide).push(it);
@@ -402,6 +415,8 @@ function renderMedia(items) {
     const g = h('div', { class: 'grid' + (vis.some(i => i.k === 'video') ? ' hasv' : ''), 'data-n': Math.min(vis.length, 5) });
     for (const it of vis) g.append(mediaEl(it));
     box.append(g);
+    const sr = srcRow(vis);
+    if (sr) box.append(sr);
   }
   for (const it of wide) box.append(mediaEl(it));
   return box;
@@ -424,10 +439,10 @@ function renderPost(k) {
   const post = getPost(k), id = IDS[k];
   const el = h('article', { class: 'post', tabindex: '-1', 'data-id': id });
   const emb = h('span', { class: 'pemb' }); emb.innerHTML = EMB;
-  el.append(h('i', { class: 'ribbon', 'aria-hidden': 'true' }), h('header', { class: 'ph' }, emb, h('span', { class: 'pname', text: 'GREY KNIGHT' })));
+  el.append(h('i', { class: 'scan', 'aria-hidden': 'true' }), h('i', { class: 'ribbon', 'aria-hidden': 'true' }), h('header', { class: 'ph' }, emb, h('span', { class: 'pname', text: 'GREY KNIGHTS' })));
   if (post.title) el.append(h('h3', { class: 'pt', text: post.title }));
   el.append(buildBody(post, false));
-  const meta = h('div', { class: 'pmeta' }, h('a', { class: 'pid', href: '?post=' + encodeURIComponent(id), 'data-act': 'open', title: 'Permanent link', text: id }));
+  const meta = h('div', { class: 'pmeta' }); // the permanent ID stays in data-id and in the copied link, but is never shown
   const ds = fmtDate(post.date);
   if (ds) meta.append(h('time', { class: 'pdate', datetime: post.date, text: ds }));
   const btn = h('button', { class: 'copy', type: 'button', 'data-act': 'copy' });
@@ -549,9 +564,9 @@ function updateStatus() {
   const len = viewLen();
   const filtered = !!view;
   resultEl.hidden = !filtered;
-  if (filtered) resultEl.textContent = (viewDone ? '' : 'Searching… ') + nf(len) + ' of ' + nf(N) + ' entries';
-  if (len === 0) setState(!viewDone ? 'Searching…' : N === 0 ? 'No posts yet. Add one to Post.txt between two lines that each contain a single “-”.' : 'No posts match this search.', !viewDone ? 'busy' : '');
-  else if (last >= len) setState(viewDone ? 'Oldest entry reached.' : 'Searching…', viewDone ? '' : 'busy');
+  if (filtered) resultEl.textContent = (viewDone ? '' : 'Searching… ') + nf(len) + ' of ' + nf(N) + ' transmissions';
+  if (len === 0) setState(!viewDone ? 'Searching…' : N === 0 ? 'No transmissions yet. Add one to Post.txt between two lines that each contain a single “-”.' : 'No transmissions match this search.', !viewDone ? 'busy' : '');
+  else if (last >= len) setState(viewDone ? 'End of the archive.' : 'Searching…', viewDone ? '' : 'busy');
   else setState('', '');
 }
 
@@ -669,7 +684,7 @@ function flash(el) {
 
 function openPost(id, push) {
   const k = idMap.get(id);
-  if (k === undefined) { showNotice('No post with ID “' + id + '”.'); return false; }
+  if (k === undefined) { showNotice('That transmission could not be found.'); return false; }
   hideNotice();
   let p = view ? view.indexOf(k) : -1;
   if (p < 0) { clearFilters(); p = rev() ? N - 1 - k : k; }
@@ -865,29 +880,79 @@ V.stage.addEventListener('wheel', e => { e.preventDefault(); vZoom(V.s * (e.delt
 }
 {
   const av = $('#avatar'), img = $('#avatarImg');
-  const it = classify(CFG.photo, 'photo');
-  if (it) {
-    img.addEventListener('load', () => { av.hidden = false; });
-    img.addEventListener('error', () => { av.hidden = true; });
-    img.src = it.u;
-    av.addEventListener('click', () => openList([{ src: it.u, alt: 'GREY KNIGHT' }], 0, av));
-  }
+  const srcs = CFG.photos.map(p => classify(p, 'photo')).filter(Boolean).map(i => i.u);
+  let n = 0, cur = '';
+  const next = () => { if (n < srcs.length) { cur = srcs[n++]; img.src = cur; } else av.hidden = true; };
+  img.addEventListener('load', () => { av.hidden = false; });
+  img.addEventListener('error', next);
+  av.addEventListener('click', () => openList([{ src: cur, alt: 'GREY KNIGHTS' }], 0, av));
+  next();
 }
 
 $('#share').addEventListener('click', async () => {
   const u = new URL(location.href); u.search = ''; u.hash = '';
   if (navigator.share) {
-    try { await navigator.share({ title: 'GREY KNIGHT', url: u.href }); return; }
+    try { await navigator.share({ title: 'GREY KNIGHTS', url: u.href }); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
   if (await copyText(u.href)) toast('Profile link copied'); else window.prompt('Copy this link', u.href);
 });
 
+
+/* ================= AMBIENT EMBERS (decorative canvas; off for reduced motion / hidden tab) ================= */
+(() => {
+  const cv = $('#fx');
+  if (!cv || !CFG.fx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = cv.getContext('2d');
+  if (!ctx) return;
+  let w = 0, hgt = 0, dpr = 1, P = [], run = true, last = 0;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const spawn = (init) => ({
+    x: rnd(0, w), y: init ? rnd(0, hgt) : hgt + rnd(4, 60),
+    r: rnd(0.7, 2.1) * dpr, vy: rnd(0.12, 0.5) * dpr, vx: rnd(-0.12, 0.12) * dpr,
+    ph: rnd(0, 6.28), sw: rnd(0.4, 1.4), blue: Math.random() < 0.28, a: rnd(0.35, 0.9)
+  });
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = cv.width = Math.round(innerWidth * dpr); hgt = cv.height = Math.round(innerHeight * dpr);
+    const n = Math.round(Math.min(46, Math.max(18, innerWidth * innerHeight / 30000)));
+    P = Array.from({ length: n }, () => spawn(true));
+  }
+  function frame(t) {
+    if (!run) return;
+    requestAnimationFrame(frame);
+    if (t - last < 32) return;
+    last = t;
+    ctx.clearRect(0, 0, w, hgt);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of P) {
+      p.y -= p.vy; p.ph += 0.012 * p.sw;
+      p.x += p.vx + Math.sin(p.ph) * 0.25 * dpr;
+      if (p.y < -10 || p.x < -10 || p.x > w + 10) Object.assign(p, spawn(false));
+      const fade = Math.min(1, Math.max(0, (p.y / hgt) * 1.6));      // fade out toward the top
+      const tw = 0.65 + 0.35 * Math.sin(p.ph * 3);
+      const al = p.a * fade * tw;
+      const c = p.blue ? '120,190,255' : '255,170,70';
+      ctx.fillStyle = 'rgba(' + c + ',' + (al * 0.16).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3.4, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = 'rgba(' + (p.blue ? '215,238,255' : '255,225,170') + ',' + al.toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    }
+  }
+  size();
+  addEventListener('resize', size);
+  document.addEventListener('visibilitychange', () => { run = !document.hidden; if (run) requestAnimationFrame(frame); });
+  requestAnimationFrame(frame);
+})();
+
 /* ================= BOOT ================= */
+const bgEl = $('#bg');
+let bgRaf = 0;
 addEventListener('popstate', () => { if (V.open) { vClose(true); return; } if (ready) route(false); });
 addEventListener('resize', schedule);
 addEventListener('scroll', () => {
   const y = scrollY;
+  if (!bgRaf) bgRaf = requestAnimationFrame(() => { bgRaf = 0; bgEl.style.setProperty('--sy', scrollY); });
   if (!mqDesk.matches && document.activeElement !== qEl) {
     if (y > lastY + 8 && y > 180) cons.classList.add('away');
     else if (y < lastY - 8 || y <= 180) cons.classList.remove('away');
